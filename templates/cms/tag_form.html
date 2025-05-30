@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Tag Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage Tag" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Tag Form" }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{% if tag_instance %}Edit Tag: {{ tag_instance.name }}{% else %}Create New Tag{% endif %}</h3>
+      </div>
+      <!-- /.card-header -->
+      <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }} {# Renders widget with attributes from forms.py #}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'cms_ui:tag_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}

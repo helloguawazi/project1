@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Product Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage Product" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Product Form" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
+  <!-- Summernote -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.css' %}">
+  <style>
+    .existing-images .img-thumbnail { width: 150px; height: 150px; object-fit: cover; margin: 5px; }
+    .existing-attributes th, .existing-attributes td { padding: 0.5rem; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="card card-primary card-tabs">
+        <div class="card-header p-0 pt-1">
+          <ul class="nav nav-tabs" id="product-tabs" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="tab-details" data-toggle="pill" href="#product-details" role="tab" aria-controls="product-details" aria-selected="true">Product Details</a>
+            </li>
+            {% if product_instance %}
+            <li class="nav-item">
+              <a class="nav-link" id="tab-images" data-toggle="pill" href="#product-images" role="tab" aria-controls="product-images" aria-selected="false">Images</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="tab-attributes" data-toggle="pill" href="#product-attributes" role="tab" aria-controls="product-attributes" aria-selected="false">Attributes</a>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body">
+          <div class="tab-content" id="product-tabs-content">
+            <!-- Product Details Tab -->
+            <div class="tab-pane fade show active" id="product-details" role="tabpanel" aria-labelledby="tab-details">
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+              {% endif %}
+              {% for field in form %}
+                <div class="form-group">
+                  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }} {# ProductForm field rendering #}
+                  {% if field.name == 'category' and not product_instance %}
+                     <small class="form-text text-muted">You can add images and attributes after creating the product.</small>
+                  {% endif %}
+                  {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                  {% endif %}
+                  {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+            </div>
+
+            {% if product_instance %}
+            <!-- Product Images Tab -->
+            <div class="tab-pane fade" id="product-images" role="tabpanel" aria-labelledby="tab-images">
+              <h5>Manage Product Images</h5>
+              {# New Image Form - Rendered Manually for layout control #}
+              {% if image_form.non_field_errors %} <div class="alert alert-danger">{% for error in image_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
+              <div class="form-group">
+                  <label for="{{ image_form.image.id_for_label }}">{{ image_form.image.label }}</label>
+                  {{ image_form.image }}
+                  {% if image_form.image.help_text %} <small class="form-text text-muted">{{ image_form.image.help_text|safe }}</small> {% endif %}
+                  {% for error in image_form.image.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+              </div>
+              <div class="form-group">
+                  <label for="{{ image_form.caption.id_for_label }}">{{ image_form.caption.label }}</label>
+                  {{ image_form.caption }}
+                  {% if image_form.caption.help_text %} <small class="form-text text-muted">{{ image_form.caption.help_text|safe }}</small> {% endif %}
+                  {% for error in image_form.caption.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+              </div>
+              <button type="submit" name="form_action" value="upload_image" class="btn btn-sm btn-primary mt-2 mb-3">Upload Image</button>
+              <hr>
+              <h6>Existing Images:</h6>
+              <div class="row existing-images">
+                {% for image in product_instance.images.all %}
+                <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+                  <div class="card h-100">
+                    <img src="{{ image.image.url }}" class="card-img-top" alt="{{ image.caption|default:product_instance.name }}">
+                    <div class="card-body p-2">
+                      <p class="card-text small">{{ image.caption|default_if_none:""|truncatechars:50 }}</p>
+                      <button type="submit" name="form_action" value="delete_image_{{ image.id }}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure you want to delete this image?');">Delete</button>
+                    </div>
+                  </div>
+                </div>
+                {% empty %}
+                <p class="col-12">No images uploaded for this product yet.</p>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Product Attributes Tab -->
+            <div class="tab-pane fade" id="product-attributes" role="tabpanel" aria-labelledby="tab-attributes">
+              <h5>Manage Product Attributes</h5>
+              {# New Attribute Form - Rendered Manually for layout control #}
+              {% if attribute_form.non_field_errors %} <div class="alert alert-danger">{% for error in attribute_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}</div> {% endif %}
+               <div class="form-row align-items-end mb-3">
+                  <div class="col">
+                    <label for="{{ attribute_form.name.id_for_label }}">{{ attribute_form.name.label }}</label>
+                    {{ attribute_form.name }}
+                    {% if attribute_form.name.help_text %} <small class="form-text text-muted">{{ attribute_form.name.help_text|safe }}</small> {% endif %}
+                    {% for error in attribute_form.name.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                  </div>
+                  <div class="col">
+                    <label for="{{ attribute_form.value.id_for_label }}">{{ attribute_form.value.label }}</label>
+                    {{ attribute_form.value }}
+                    {% if attribute_form.value.help_text %} <small class="form-text text-muted">{{ attribute_form.value.help_text|safe }}</small> {% endif %}
+                    {% for error in attribute_form.value.errors %} <div class="invalid-feedback d-block">{{ error }}</div> {% endfor %}
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" name="form_action" value="add_attribute" class="btn btn-sm btn-primary mt-auto" style="height: calc(1.5em + .75rem + 2px);">Add Attribute</button>
+                  </div>
+              </div>
+              <hr>
+              <h6>Existing Attributes:</h6>
+              <table class="table table-sm table-striped existing-attributes">
+                <thead><tr><th>Name</th><th>Value</th><th style="width: 10%;">Action</th></tr></thead>
+                <tbody>
+                {% for attr in product_instance.attributes.all %}
+                <tr>
+                  <td>{{ attr.name }}</td>
+                  <td>{{ attr.value }}</td>
+                  <td><button type="submit" name="form_action" value="delete_attribute_{{ attr.id }}" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure you want to delete this attribute?');">Delete</button></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3">No attributes defined for this product yet.</td></tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+          <button type="submit" name="form_action" value="save_main_details" class="btn btn-primary">Save Product Details</button>
+          <a href="{% url 'shop_ui:product_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div> {# End card #}
+    </form> {# End form #}
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- Select2 -->
+<script src="{% static 'admin-lte/plugins/select2/js/select2.full.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.js' %}"></script>
+<script>
+  $(function () {
+    // Initialize Select2 Elements
+    $('#id_category').select2({ // If Django renders category field with id_category
+        theme: 'bootstrap4',
+        placeholder: 'Select a category',
+        allowClear: true
+    });
+
+    // Initialize Summernote
+    $('#id_description').summernote({ // If Django renders description field with id_description
+        height: 200 
+    });
+
+    // Tab persistence
+    $('a[data-toggle="pill"]').on('shown.bs.tab', function (e) {
+      localStorage.setItem('activeProductTab', $(e.target).attr('href'));
+    });
+    var activeTab = localStorage.getItem('activeProductTab');
+    if(activeTab){
+      $('#product-tabs a[href="' + activeTab + '"]').tab('show');
+    } else {
+      $('#product-tabs a:first').tab('show');
+    }
+  });
+</script>
+{% endblock %}

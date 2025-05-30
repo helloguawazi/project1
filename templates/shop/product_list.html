@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Product Management" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Products" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Product List" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">List of Products</h3>
+        <div class="card-tools">
+          <a href="{% url 'shop_ui:product_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New Product
+          </a>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <table id="productTable" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Available</th>
+            <th>Created By</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for product in products %}
+          <tr>
+            <td>
+                {% if product.images.exists %}
+                    <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}" class="img-thumbnail mr-2" style="width: 50px; height: 50px; object-fit: cover;">
+                {% else %}
+                    <span class="img-thumbnail mr-2 p-0" style="width: 50px; height: 50px; display: inline-flex; align-items:center; justify-content:center; background-color: #efefef; ">
+                        <i class="fas fa-image text-muted" style="font-size: 1.5rem;"></i>
+                    </span>
+                {% endif %}
+                {{ product.name }}
+            </td>
+            <td>{{ product.category.name }}</td>
+            <td>{{ product.price }}</td> {# TODO: Format currency based on settings #}
+            <td>{{ product.stock }}</td>
+            <td>
+              {% if product.available %}
+                <span class="badge badge-success">Yes</span>
+              {% else %}
+                <span class="badge badge-danger">No</span>
+              {% endif %}
+            </td>
+            <td>{{ product.created_by.username|default:"N/A" }}</td>
+            <td>{{ product.created_at|date:"Y-m-d H:i" }}</td>
+            <td>
+              <a href="{% url 'shop_ui:product_edit' product_slug=product.slug %}" class="btn btn-xs btn-info mr-1" title="Edit">
+                <i class="fas fa-edit"></i>
+              </a>
+              {# Add delete button if needed #}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8">No products found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- DataTables  & Plugins -->
+<script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'admin-lte/plugins/datatables-responsive/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'admin-lte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js' %}"></script>
+
+<script>
+  $(function () {
+    $("#productTable").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "pageLength": 10, // Default number of rows to display
+      // "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"] // Add buttons if needed later
+      // .buttons().container().appendTo('#productTable_wrapper .col-md-6:eq(0)');
+    });
+  });
+</script>
+{% endblock %}

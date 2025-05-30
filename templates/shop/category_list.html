@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Shop Categories" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Categories" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Category List" }}{% endblock %}
+
+{% block extrastyles %}
+  {# DataTables might be problematic with recursive includes, consider for flat lists or AJAX loading #}
+  {# <link rel="stylesheet" href="{% static 'admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}"> #}
+  <style>
+    .category-toggle { cursor: pointer; }
+    .child-category-row td { background-color: #f8f9fa; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">List of Shop Categories</h3>
+        <div class="card-tools">
+          <a href="{% url 'shop_ui:category_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New Category
+          </a>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <table id="categoryTable" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th style="width: 40%;">Name</th>
+            <th>Slug</th>
+            <th>Parent</th>
+            <th>Products</th>
+            <th style="width: 15%;">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for category in categories %}
+            {% include "shop/partials/category_list_item.html" with category=category level=0 %}
+          {% empty %}
+            <tr><td colspan="5">No categories found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extrascripts %}
+{# <script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script> #}
+{# <script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script> #}
+<script>
+  $(function () {
+    // Basic expand/collapse for nested categories
+    $('.category-toggle').on('click', function(e) {
+      e.preventDefault();
+      var childRowId = $(this).data('child-row');
+      $('#' + childRowId).toggle();
+      $(this).find('i').toggleClass('fa-plus-square fa-minus-square');
+    });
+
+    // Optional: Initialize DataTable if you switch to a flat structure or handle children via AJAX
+    // $("#categoryTable").DataTable({
+    //   "paging": true,
+    //   "lengthChange": true,
+    //   "searching": true,
+    //   "ordering": true, // Be careful with ordering on a recursively included table
+    //   "info": true,
+    //   "autoWidth": false,
+    //   "responsive": true,
+    // });
+  });
+</script>
+{% endblock %}

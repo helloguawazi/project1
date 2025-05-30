@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'cms',
     'finance',
     'site_settings',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -172,3 +173,7 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+LOGIN_URL = 'login' # Route name for the login page
+LOGIN_REDIRECT_URL = 'dashboard_root' # Route name for redirect after successful login
+LOGOUT_REDIRECT_URL = 'login' # Optional: where to go after logout if not specified in LogoutView

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Page Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage Page" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Page Form" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- Summernote -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.css' %}">
+  <!-- Tempusdominus Bootstrap 4 (for datetime picker) -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{% if page_instance %}Edit Page: {{ page_instance.title|truncatechars:30 }}{% else %}Create New Page{% endif %}</h3>
+      </div>
+      <!-- /.card-header -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.name == "published_at" and field.widget_type == "datetime-local" %}
+                    <div class="input-group date" id="{{ field.id_for_label }}_picker" data-target-input="nearest">
+                        {{ field }}
+                        <div class="input-group-append" data-target="#{{ field.id_for_label }}_picker" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                {% else %}
+                    {{ field }}
+                {% endif %}
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+          {% endfor %}
+
+          {% if page_instance and page_instance.featured_image %}
+            <div class="form-group">
+                <label>Current Featured Image:</label><br>
+                <img src="{{ page_instance.featured_image.url }}" alt="{{ page_instance.title }}" style="max-width: 200px; max-height: 200px; margin-bottom: 10px;">
+            </div>
+          {% endif %}
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'cms_ui:page_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- Summernote -->
+<script src="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.js' %}"></script>
+<!-- Moment.js -->
+<script src="{% static 'admin-lte/plugins/moment/moment.min.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'admin-lte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+<script>
+  $(function () {
+    // Initialize Summernote for content
+    $('#id_content').summernote({ // Assuming Django form field ID for Page content
+        height: 300
+    });
+
+    // Initialize Tempus Dominus DateTimePicker for published_at
+    $('#id_published_at_picker').datetimepicker({ // Assuming Django form field ID for Page published_at
+        icons: { time: 'far fa-clock' },
+        format: 'YYYY-MM-DDTHH:mm',
+        sideBySide: true,
+        buttons: { showClear: true, showClose: true }
+    });
+  });
+</script>
+{% endblock %}

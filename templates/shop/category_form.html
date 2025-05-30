@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Category Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage Category" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Category Form" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{% if category_instance %}Edit Category: {{ category_instance.name }}{% else %}Create New Category{% endif %}</h3>
+      </div>
+      <!-- /.card-header -->
+      <form method="post">
+        {% csrf_token %}
+        <div class="card-body">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }} {# This renders the widget with its current attributes from forms.py #}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'shop_ui:category_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- Select2 -->
+<script src="{% static 'admin-lte/plugins/select2/js/select2.full.min.js' %}"></script>
+<script>
+  $(function () {
+    // Initialize Select2 Elements
+    // Ensure this matches the ID or class of your select element for parent category in the form
+    $('#id_parent').select2({ // If Django renders the ID as id_parent
+        theme: 'bootstrap4',
+        placeholder: 'Select a parent category',
+        allowClear: true
+    });
+  });
+</script>
+{% endblock %}

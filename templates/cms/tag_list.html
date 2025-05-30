@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Tag Management" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Tags" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Tag List" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- DataTables -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">List of Tags</h3>
+        <div class="card-tools">
+          <a href="{% url 'cms_ui:tag_create' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Add New Tag
+          </a>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <table id="tagTable" class="table table-bordered table-hover">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Slug</th>
+            <th>Article Count</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for tag in tags %}
+          <tr>
+            <td>{{ tag.name }}</td>
+            <td>{{ tag.slug }}</td>
+            <td>{{ tag.articles.count }}</td>
+            <td>
+              <a href="{% url 'cms_ui:tag_edit' tag_slug=tag.slug %}" class="btn btn-xs btn-info mr-1" title="Edit">
+                <i class="fas fa-edit"></i>
+              </a>
+              {# Add delete button if needed #}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">No tags found.</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <!-- /.card-body -->
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- DataTables  & Plugins -->
+<script src="{% static 'admin-lte/plugins/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js' %}"></script>
+<script>
+  $(function () {
+    $("#tagTable").DataTable({
+      "responsive": true, "lengthChange": true, "autoWidth": false,
+      "pageLength": 10
+    });
+  });
+</script>
+{% endblock %}

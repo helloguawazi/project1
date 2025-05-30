@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Article Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage Article" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"Article Form" }}{% endblock %}
+
+{% block extrastyles %}
+  <!-- Select2 -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2/css/select2.min.css' %}">
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
+  <!-- Summernote -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.css' %}">
+  <!-- Tempusdominus Bootstrap 4 (for datetime picker) -->
+  <link rel="stylesheet" href="{% static 'admin-lte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{% if article_instance %}Edit Article: {{ article_instance.title|truncatechars:30 }}{% else %}Create New Article{% endif %}</h3>
+      </div>
+      <!-- /.card-header -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.name == "published_at" and field.widget_type == "datetime-local" %}
+                    {# Special handling for DateTimeInput to work with Tempus Dominus #}
+                    <div class="input-group date" id="{{ field.id_for_label }}_picker" data-target-input="nearest">
+                        {{ field }} {# Render the field first #}
+                        <div class="input-group-append" data-target="#{{ field.id_for_label }}_picker" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                {% else %}
+                    {{ field }} {# Default rendering for other fields #}
+                {% endif %}
+
+                {% if field.help_text %}
+                    <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                    <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+            </div>
+          {% endfor %}
+
+          {% if article_instance and article_instance.featured_image %}
+            <div class="form-group">
+                <label>Current Featured Image:</label><br>
+                <img src="{{ article_instance.featured_image.url }}" alt="{{ article_instance.title }}" style="max-width: 200px; max-height: 200px; margin-bottom: 10px;">
+            </div>
+          {% endif %}
+          
+          {# TODO: Add section for managing comments if needed #}
+
+        </div>
+        <!-- /.card-body -->
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'cms_ui:article_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- Select2 -->
+<script src="{% static 'admin-lte/plugins/select2/js/select2.full.min.js' %}"></script>
+<!-- Summernote -->
+<script src="{% static 'admin-lte/plugins/summernote/summernote-bs4.min.js' %}"></script>
+<!-- Moment.js -->
+<script src="{% static 'admin-lte/plugins/moment/moment.min.js' %}"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{% static 'admin-lte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js' %}"></script>
+
+<script>
+  $(function () {
+    // Initialize Select2 Elements for categories and tags
+    $('#id_categories, #id_tags').select2({ // Assuming Django form field IDs
+        theme: 'bootstrap4',
+        placeholder: 'Select options',
+        allowClear: true
+    });
+
+    // Initialize Summernote for content
+    $('#id_content').summernote({ // Assuming Django form field ID
+        height: 300 
+    });
+
+    // Initialize Tempus Dominus DateTimePicker for published_at
+    // Ensure the ID matches your form field's ID (e.g., id_published_at)
+    // The input group should have data-target-input="nearest" and id matching the picker target
+    $('#id_published_at_picker').datetimepicker({
+        icons: { time: 'far fa-clock' },
+        format: 'YYYY-MM-DDTHH:mm', // Match Django's expected format if possible, or parse in view
+        sideBySide: true,
+        buttons: { showClear: true, showClose: true }
+    });
+  });
+</script>
+{% endblock %}

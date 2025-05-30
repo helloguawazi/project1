@@ -1,20 +1,17 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import (
-    CategoryViewSet, ProductViewSet, ProductSearchView,
-    AddressViewSet, OrderViewSet, CarrierViewSet, ShipmentViewSet
-)
+from django.urls import path
+from . import views
 
-router = DefaultRouter()
-router.register(r'categories', CategoryViewSet, basename='category')
-router.register(r'products', ProductViewSet, basename='product')
-router.register(r'addresses', AddressViewSet, basename='address')
-router.register(r'orders', OrderViewSet, basename='order')
-router.register(r'carriers', CarrierViewSet, basename='carrier')
-router.register(r'shipments', ShipmentViewSet, basename='shipment')
-
+app_name = 'shop_ui'
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('search/products/', ProductSearchView.as_view(), name='product_search'),
+    path('categories/', views.category_list_view, name='category_list'),
+    path('categories/create/', views.category_create_view, name='category_create'),
+    path('categories/<slug:category_slug>/edit/', views.category_edit_view, name='category_edit'),
+    
+    path('products/', views.product_list_view, name='product_list'),
+    path('products/create/', views.product_create_view, name='product_create'),
+    path('products/<slug:product_slug>/edit/', views.product_edit_view, name='product_edit'),
+    
+    # TODO: Add URLs for managing product images and attributes if they get dedicated pages
+    # e.g., path('products/<slug:product_slug>/images/', views.product_images_view, name='product_images'),
 ]

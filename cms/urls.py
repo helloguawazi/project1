@@ -1,19 +1,22 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import (
-    CmsCategoryViewSet, TagViewSet, ArticleViewSet, PageViewSet,
-    # CommentCreateView, # Commented out as add_comment action is preferred
-    MetaTagViewSet, SitemapEntryViewSet
-)
+from django.urls import path
+from . import views
 
-router = DefaultRouter()
-router.register(r'categories', CmsCategoryViewSet, basename='cms-category')
-router.register(r'tags', TagViewSet, basename='tag')
-router.register(r'articles', ArticleViewSet, basename='article')
-router.register(r'pages', PageViewSet, basename='page')
-router.register(r'meta-tags', MetaTagViewSet, basename='meta-tag')
-router.register(r'sitemap-entries', SitemapEntryViewSet, basename='sitemap-entry')
+app_name = 'cms_ui'
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('articles/', views.article_list_view, name='article_list'),
+    path('articles/create/', views.article_create_view, name='article_create'),
+    path('articles/<slug:article_slug>/edit/', views.article_edit_view, name='article_edit'),
+
+    path('pages/', views.page_list_view, name='page_list'),
+    path('pages/create/', views.page_create_view, name='page_create'),
+    path('pages/<slug:page_slug>/edit/', views.page_edit_view, name='page_edit'),
+
+    path('categories/', views.cms_category_list_view, name='cms_category_list'),
+    path('categories/create/', views.cms_category_create_view, name='cms_category_create'),
+    path('categories/<slug:category_slug>/edit/', views.cms_category_edit_view, name='cms_category_edit'),
+
+    path('tags/', views.tag_list_view, name='tag_list'),
+    path('tags/create/', views.tag_create_view, name='tag_create'),
+    path('tags/<slug:tag_slug>/edit/', views.tag_edit_view, name='tag_edit'),
 ]

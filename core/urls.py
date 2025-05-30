@@ -18,20 +18,37 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework_simplejwt.views import (
+from rest_framework_simplejwt.views import ( # Although not used by dashboard directly, keep for API
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.contrib.auth import views as auth_views # Django auth views
+# Import dashboard views if you want to make it the root
+from dashboard.views import dashboard_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # Django admin
+    
+    # Auth views
+    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'), # Redirect to login after logout
+
+    path('', dashboard_view, name='dashboard_root'), # Dashboard as root
+    path('dashboard/', include('dashboard.urls', namespace='dashboard')), # Dashboard app
+    
+    # API tokens (if you keep both session auth for templates and JWT for API)
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/accounts/', include('accounts.urls')),
-    path('api/shop/', include('shop.urls')),
-    path('api/cms/', include('cms.urls')),
+    path('api/accounts/', include('accounts.api_urls')), 
+    path('api/shop/', include('shop.api_urls')), 
+    path('api/cms/', include('cms.api_urls')), 
     path('api/finance/', include('finance.urls')),
     path('api/site-settings/', include('site_settings.urls')),
+
+    # Management UI paths
+    path('manage/users/', include('accounts.urls', namespace='accounts_ui')),
+    path('manage/shop/', include('shop.urls', namespace='shop_ui')),
+    path('manage/cms/', include('cms.urls', namespace='cms_ui')),
 ]
 
 if settings.DEBUG:

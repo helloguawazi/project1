@@ -1,0 +1,45 @@
+{% load static %}
+<tr class="category-level-{{ level }}">
+  <td>
+    <span style="padding-left: {{ level|mul:20 }}px;">
+      {% if category.children.exists %}
+        <a href="#" class="category-toggle mr-2" data-child-row="children-of-{{ category.slug }}">
+          <i class="far fa-plus-square text-primary"></i>
+        </a>
+      {% else %}
+        <span class="mr-2" style="display: inline-block; width: 16px;"></span> {# Spacer for alignment #}
+      {% endif %}
+      {{ category.name }}
+    </span>
+  </td>
+  <td>{{ category.slug }}</td>
+  <td>{{ category.parent.name|default:"-" }}</td>
+  <td>{{ category.products.count }}</td>
+  <td>
+    <a href="{% url 'shop_ui:category_edit' category_slug=category.slug %}" class="btn btn-xs btn-info mr-1" title="Edit">
+      <i class="fas fa-edit"></i>
+    </a>
+    {# Example: Delete button - requires a form/POST request and confirmation #}
+    {# <form action="#" method="POST" style="display: inline;"> #}
+    {#   {% csrf_token %} #}
+    {#   <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Are you sure?');" title="Delete"> #}
+    {#     <i class="fas fa-trash"></i> #}
+    {#   </button> #}
+    {# </form> #}
+  </td>
+</tr>
+{% if category.children.exists %}
+  {# This row will contain a nested table for children, initially hidden #}
+  <tr id="children-of-{{ category.slug }}" style="display: none;" class="child-category-container-row">
+      <td colspan="5" class="p-0">
+          {# No border on the inner table for cleaner look #}
+          <table class="table table-sm table-hover mb-0"> 
+              <tbody>
+                  {% for child in category.children.all %}
+                      {% include "shop/partials/category_list_item.html" with category=child level=level|add:1 %}
+                  {% endfor %}
+              </tbody>
+          </table>
+      </td>
+  </tr>
+{% endif %}

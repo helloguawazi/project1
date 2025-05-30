@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block page_title %}Dashboard Overview{% endblock %}
+{% block breadcrumb_active %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Info boxes -->
+<div class="row">
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box">
+      <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total Users</span>
+        <span class="info-box-number">{{ total_users }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3">
+      <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-shopping-cart"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total Orders</span>
+        <span class="info-box-number">{{ total_orders }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="clearfix hidden-md-up"></div>
+
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3">
+      <span class="info-box-icon bg-success elevation-1"><i class="fas fa-box-open"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total Products</span>
+        <span class="info-box-number">{{ total_products }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3">
+      <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-file-alt"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Total Articles</span>
+        <span class="info-box-number">{{ total_articles }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /.row -->
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Monthly Recap Report (Placeholder)</h5>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <p class="text-center">
+              <strong>Sales: 1 Jan, 2023 - 30 Jul, 2023 (Placeholder)</strong>
+            </p>
+            <div class="chart">
+              <canvas id="salesChart" height="180" style="height: 180px;"></canvas>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <p class="text-center">
+              <strong>Goal Completion (Placeholder)</strong>
+            </p>
+            <!-- Add some progress bars or other summary elements here -->
+            <div class="progress-group">
+              Add Products to Cart
+              <span class="float-right"><b>160</b>/200</span>
+              <div class="progress progress-sm">
+                <div class="progress-bar bg-primary" style="width: 80%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="row">
+          <div class="col-sm-3 col-6">
+            <div class="description-block border-right">
+              <h5 class="description-header">$35,210.43</h5>
+              <span class="description-text">TOTAL REVENUE</span>
+            </div>
+          </div>
+          <!-- Other footer stats -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrastyles %}
+<!-- Additional styles for dashboard if needed -->
+{% endblock %}
+
+{% block extrascripts %}
+<!-- ChartJS -->
+<script src="{% static 'admin-lte/plugins/chart.js/Chart.min.js' %}"></script>
+<script>
+$(function () {
+  'use strict'
+
+  /* ChartJS
+   * -------
+   * Here we will create a few charts using ChartJS
+   */
+
+  //-----------------------
+  //- MONTHLY SALES CHART -
+  //-----------------------
+
+  // Get context with jQuery - using jQuery's .get() method.
+  var salesChartCanvas = $('#salesChart').get(0).getContext('2d')
+
+  var salesChartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    datasets: [
+      {
+        label: 'Digital Goods (Placeholder)',
+        backgroundColor: 'rgba(60,141,188,0.9)',
+        borderColor: 'rgba(60,141,188,0.8)',
+        pointRadius: false,
+        pointColor: '#3b8bba',
+        pointStrokeColor: 'rgba(60,141,188,1)',
+        pointHighlightFill: '#fff',
+        pointHighlightStroke: 'rgba(60,141,188,1)',
+        data: [28, 48, 40, 19, 86, 27, 90] // Example data
+      },
+      {
+        label: 'Electronics (Placeholder)',
+        backgroundColor: 'rgba(210, 214, 222, 1)',
+        borderColor: 'rgba(210, 214, 222, 1)',
+        pointRadius: false,
+        pointColor: 'rgba(210, 214, 222, 1)',
+        pointStrokeColor: '#c1c7d1',
+        pointHighlightFill: '#fff',
+        pointHighlightStroke: 'rgba(220,220,220,1)',
+        data: [65, 59, 80, 81, 56, 55, 40] // Example data
+      }
+    ]
+  }
+
+  var salesChartOptions = {
+    maintainAspectRatio: false,
+    responsive: true,
+    legend: {
+      display: false
+    },
+    scales: {
+      xAxes: [{
+        gridLines: {
+          display: false
+        }
+      }],
+      yAxes: [{
+        gridLines: {
+          display: false
+        }
+      }]
+    }
+  }
+
+  // This will get the first returned node in the jQuery collection.
+  // eslint-disable-next-line no-unused-vars
+  var salesChart = new Chart(salesChartCanvas, {
+    type: 'line',
+    data: salesChartData,
+    options: salesChartOptions
+  })
+})
+</script>
+{% endblock %}

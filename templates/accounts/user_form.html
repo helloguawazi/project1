@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"User Form" }}{% endblock %}
+
+{% block page_title %}{{ page_title|default:"Manage User" }}{% endblock %}
+{% block breadcrumb_active %}{{ breadcrumb_active|default:"User Form" }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-primary">
+      <div class="card-header">
+        <h3 class="card-title">{% if user_instance %}Edit User: {{ user_instance.username }}{% else %}Create New User{% endif %}</h3>
+      </div>
+      <!-- /.card-header -->
+      <!-- form start -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-body">
+          <h4>User Details</h4>
+          {% if user_form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in user_form.non_field_errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in user_form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }} {# This renders the widget with its current attributes #}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+          
+          <hr>
+          <h4>Profile Details</h4>
+          {% if profile_form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in profile_form.non_field_errors %}
+                <p>{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% for field in profile_form %}
+            <div class="form-group">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+              {% endif %}
+              {% for error in field.errors %}
+                <div class="invalid-feedback d-block">{{ error }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+        <!-- /.card-body -->
+
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <a href="{% url 'accounts_ui:user_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+    <!-- /.card -->
+  </div>
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<!-- Add any specific JS for this form if needed -->
+{% endblock %}
