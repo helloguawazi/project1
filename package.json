@@ -1,0 +1,28 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/helloguawazi/project1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/helloguawazi/project1/issues"
+  },
+  "homepage": "https://github.com/helloguawazi/project1#readme",
+  "dependencies": {
+    "admin-lte": "^3.2.0",
+    "bootstrap": "^4.6.2",
+    "chart.js": "^4.4.9",
+    "datatables.net": "^2.3.1",
+    "datatables.net-bs4": "^2.3.1",
+    "jquery": "^3.7.1"
+  }
+}
